@@ -35,18 +35,28 @@ public class AbstractDriverIT {
 
   protected final int ERROR_CODE_DOMAIN_OBJECT_DOES_NOT_EXIST = 2003;
 
+  private static String getConnPropKeyFromEnv(String connectionType, String propKey) {
+    String envKey = String.format("SNOWFLAKE_%s_%s", connectionType, propKey);
+    return TestUtil.systemGetEnv(envKey);
+  }
+
   public static Map<String, String> getConnectionParameters(String accountName) {
+    return getConnectionParameters(accountName, "TEST");
+  }
+
+  // connectionType is either "TEST"(default) or "ORG"
+  public static Map<String, String> getConnectionParameters(String accountName, String connectionType) {
     Map<String, String> params = new HashMap<>();
     String account;
     String host;
     if (accountName == null) {
-      account = TestUtil.systemGetEnv("SNOWFLAKE_TEST_ACCOUNT");
-      host = TestUtil.systemGetEnv("SNOWFLAKE_TEST_HOST");
+      account = getConnPropKeyFromEnv(connectionType, "ACCOUNT");
+      host = getConnPropKeyFromEnv(connectionType, "HOST");
     } else {
       account = accountName;
       // By default, the test will run against reg deployment.
       // If developer needs to run in Intellij, you can set this env as ".dev.local"
-      String deployment = TestUtil.systemGetEnv("SNOWFLAKE_TEST_DEPLOYMENT");
+      String deployment = getConnPropKeyFromEnv(connectionType, "DEPLOYMENT");
       if (Strings.isNullOrEmpty(deployment)) {
         deployment = ".reg.local";
       }
@@ -66,7 +76,7 @@ public class AbstractDriverIT {
         !Strings.isNullOrEmpty(host));
     params.put("host", host);
 
-    String protocol = TestUtil.systemGetEnv("SNOWFLAKE_TEST_PROTOCOL");
+    String protocol = getConnPropKeyFromEnv(connectionType,"PROTOCOL");
     String ssl;
     if ("http".equals(protocol)) {
       ssl = "off";
@@ -75,16 +85,16 @@ public class AbstractDriverIT {
     }
     params.put("ssl", ssl);
 
-    String user = TestUtil.systemGetEnv("SNOWFLAKE_TEST_USER");
+    String user = getConnPropKeyFromEnv(connectionType,"USER");
     assertThat("set SNOWFLAKE_TEST_USER environment variable.", !Strings.isNullOrEmpty(user));
     params.put("user", user);
 
-    String password = TestUtil.systemGetEnv("SNOWFLAKE_TEST_PASSWORD");
+    String password = getConnPropKeyFromEnv(connectionType, "PASSWORD");
     assertThat(
         "set SNOWFLAKE_TEST_PASSWORD environment variable.", !Strings.isNullOrEmpty(password));
     params.put("password", password);
 
-    String port = TestUtil.systemGetEnv("SNOWFLAKE_TEST_PORT");
+    String port = getConnPropKeyFromEnv(connectionType,"PORT");
     if (Strings.isNullOrEmpty(port)) {
       if ("on".equals(ssl)) {
         port = "443";
@@ -95,36 +105,36 @@ public class AbstractDriverIT {
     assertThat("set SNOWFLAKE_TEST_PORT environment variable.", !Strings.isNullOrEmpty(port));
     params.put("port", port);
 
-    String database = TestUtil.systemGetEnv("SNOWFLAKE_TEST_DATABASE");
+    String database = getConnPropKeyFromEnv(connectionType,"DATABASE");
     assertThat(
         "set SNOWFLAKE_TEST_DATABASE environment variable.", !Strings.isNullOrEmpty(database));
     params.put("database", database);
 
-    String schema = TestUtil.systemGetEnv("SNOWFLAKE_TEST_SCHEMA");
+    String schema = getConnPropKeyFromEnv(connectionType,"SCHEMA");
     assertThat("set SNOWFLAKE_TEST_SCHEMA environment variable.", !Strings.isNullOrEmpty(schema));
     params.put("schema", schema);
 
-    String role = TestUtil.systemGetEnv("SNOWFLAKE_TEST_ROLE");
+    String role = getConnPropKeyFromEnv(connectionType,"ROLE");
     assertThat("set SNOWFLAKE_TEST_ROLE environment variable.", !Strings.isNullOrEmpty(role));
     params.put("role", role);
 
-    String warehouse = TestUtil.systemGetEnv("SNOWFLAKE_TEST_WAREHOUSE");
+    String warehouse = getConnPropKeyFromEnv(connectionType,"SNOWFLAKE_TEST_WAREHOUSE");
     assertThat(
         "set SNOWFLAKE_TEST_WAREHOUSE environment variable.", !Strings.isNullOrEmpty(warehouse));
     params.put("warehouse", warehouse);
 
     params.put("uri", String.format("jdbc:snowflake://%s:%s", host, port));
 
-    String adminUser = TestUtil.systemGetEnv("SNOWFLAKE_TEST_ADMIN_USER");
+    String adminUser = getConnPropKeyFromEnv(connectionType,"ADMIN_USER");
     params.put("adminUser", adminUser);
 
-    String adminPassword = TestUtil.systemGetEnv("SNOWFLAKE_TEST_ADMIN_PASSWORD");
+    String adminPassword = getConnPropKeyFromEnv(connectionType,"ADMIN_PASSWORD");
     params.put("adminPassword", adminPassword);
 
-    String ssoUser = TestUtil.systemGetEnv("SNOWFLAKE_TEST_SSO_USER");
+    String ssoUser = getConnPropKeyFromEnv(connectionType,"SSO_USER");
     params.put("ssoUser", ssoUser);
 
-    String ssoPassword = TestUtil.systemGetEnv("SNOWFLAKE_TEST_SSO_PASSWORD");
+    String ssoPassword = getConnPropKeyFromEnv(connectionType,"SSO_PASSWORD");
     params.put("ssoPassword", ssoPassword);
 
     return params;

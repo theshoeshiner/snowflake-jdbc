@@ -953,8 +953,7 @@ public class ConnectionIT extends BaseJDBCTest {
     connection.close();
   }
 
-  private Properties setCommonConnectionParameters(boolean validateDefaultParameters) {
-    Map<String, String> params = getConnectionParameters();
+  private Properties kvMap2Properties(Map<String, String> params, boolean validateDefaultParameters) {
     Properties props = new Properties();
     props.put("validateDefaultParameters", validateDefaultParameters);
     props.put("account", params.get("account"));
@@ -966,6 +965,22 @@ public class ConnectionIT extends BaseJDBCTest {
     props.put("schema", params.get("schema"));
     props.put("warehouse", params.get("warehouse"));
     return props;
+  }
+
+  private Properties setCommonConnectionParameters(boolean validateDefaultParameters) {
+    Map<String, String> params = getConnectionParameters();
+    return kvMap2Properties(params, validateDefaultParameters);
+  }
+
+  @Test
+  public void testFailOverOrgAccount() throws SQLException {
+    Map<String, String> kvParams = getConnectionParameters(null,"ORG");
+    Properties connProps = kvMap2Properties(kvParams, false);
+    String uri = kvParams.get("uri");
+
+    Connection con = DriverManager.getConnection(uri, connProps);
+    con.createStatement().execute("select 1");
+    con.close();
   }
 
   private class ConcurrentConnections implements Runnable {
