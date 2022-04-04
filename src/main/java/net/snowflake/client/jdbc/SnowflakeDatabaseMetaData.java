@@ -1315,13 +1315,14 @@ public class SnowflakeDatabaseMetaData implements DatabaseMetaData {
     } else if (catalog.isEmpty()) {
       return "";
     } else {
+      String catalogUnescaped = unescapeChars(catalog);
       if (schemaPattern == null || isSchemaNameWildcardPattern(schemaPattern)) {
-        showProcedureCommand += " in database \"" + catalog + "\"";
+        showProcedureCommand += " in database \"" + catalogUnescaped + "\"";
       } else if (schemaPattern.isEmpty()) {
         return "";
       } else {
         schemaPattern = unescapeChars(schemaPattern);
-        showProcedureCommand += " in schema \"" + catalog + "\".\"" + schemaPattern + "\"";
+        showProcedureCommand += " in schema \"" + catalogUnescaped + "\".\"" + schemaPattern + "\"";
       }
     }
     logger.debug("sql command to get column metadata: {}", showProcedureCommand);
@@ -1432,12 +1433,14 @@ public class SnowflakeDatabaseMetaData implements DatabaseMetaData {
       // a schema if the current schema a user is connected to is different
       // given that we don't support show tables without a known schema.
       if (schemaPattern == null || isSchemaNameWildcardPattern(schemaPattern)) {
-        showCommand += " in database \"" + catalog + "\"";
+        String catalogUnescaped = unescapeChars(catalog);
+        showCommand += " in database \"" + catalogUnescaped + "\"";
       } else if (schemaPattern.isEmpty()) {
         return SnowflakeDatabaseMetaDataResultSet.getEmptyResultSet(GET_TABLES, statement);
       } else {
+        String catalogUnescaped = unescapeChars(catalog);
         String schemaUnescaped = unescapeChars(schemaPattern);
-        showCommand += " in schema \"" + catalog + "\".\"" + schemaUnescaped + "\"";
+        showCommand += " in schema \"" + catalogUnescaped + "\".\"" + schemaUnescaped + "\"";
       }
     }
 
@@ -1606,14 +1609,16 @@ public class SnowflakeDatabaseMetaData implements DatabaseMetaData {
           extendedSet ? GET_COLUMNS_EXTENDED_SET : GET_COLUMNS, statement);
     } else {
       if (schemaPattern == null || isSchemaNameWildcardPattern(schemaPattern)) {
-        showCommand += " in database \"" + catalog + "\"";
+        String catalogUnescaped = unescapeChars(catalog);
+        showCommand += " in database \"" + catalogUnescaped + "\"";
       } else if (schemaPattern.isEmpty()) {
         return SnowflakeDatabaseMetaDataResultSet.getEmptyResultSet(
             extendedSet ? GET_COLUMNS_EXTENDED_SET : GET_COLUMNS, statement);
       } else {
+        String catalogUnescaped = unescapeChars(catalog);
         String schemaUnescaped = unescapeChars(schemaPattern);
         if (tableNamePattern == null || Wildcard.isWildcardPatternStr(tableNamePattern)) {
-          showCommand += " in schema \"" + catalog + "\".\"" + schemaUnescaped + "\"";
+          showCommand += " in schema \"" + catalogUnescaped + "\".\"" + schemaUnescaped + "\"";
         } else if (tableNamePattern.isEmpty()) {
           return SnowflakeDatabaseMetaDataResultSet.getEmptyResultSet(
               extendedSet ? GET_COLUMNS_EXTENDED_SET : GET_COLUMNS, statement);
@@ -1621,7 +1626,7 @@ public class SnowflakeDatabaseMetaData implements DatabaseMetaData {
           String tableNameUnescaped = unescapeChars(tableNamePattern);
           showCommand +=
               " in table \""
-                  + catalog
+                  + catalogUnescaped
                   + "\".\""
                   + schemaUnescaped
                   + "\".\""
