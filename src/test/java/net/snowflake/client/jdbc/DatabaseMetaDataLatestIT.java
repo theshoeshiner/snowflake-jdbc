@@ -206,6 +206,42 @@ public class DatabaseMetaDataLatestIT extends BaseJDBCTest {
     }
   }
 
+  @Test
+  @ConditionalIgnoreRule.ConditionalIgnore(condition = RunningOnGithubAction.class)
+  public void testDoubleQuotedDatabaseInGetTables() throws SQLException {
+    try (Connection con = getConnection()) {
+      Statement statement = con.createStatement();
+      // Create a database with double quotes inside the database name
+      statement.execute("create or replace database \"dbwith\"\"quotes\"");
+      statement.execute("create or replace schema \"dbwith\"\"quotes\".\"testschema\"");
+      statement.execute(
+          "create or replace table \"dbwith\"\"quotes\".\"testschema\".\"testtable\" (col1 string, col2 string)");
+      DatabaseMetaData metaData = con.getMetaData();
+      ResultSet rs = metaData.getTables("dbwith\"quotes", "testschema", null, null);
+      assertEquals(1, getSizeOfResultSet(rs));
+      rs.close();
+      statement.close();
+    }
+  }
+
+  @Test
+  @ConditionalIgnoreRule.ConditionalIgnore(condition = RunningOnGithubAction.class)
+  public void testDoubleQuotedDatabaseInGetColumns() throws SQLException {
+    try (Connection con = getConnection()) {
+      Statement statement = con.createStatement();
+      // Create a database with double quotes inside the database name
+      statement.execute("create or replace database \"dbwith\"\"quotes\"");
+      statement.execute("create or replace schema \"dbwith\"\"quotes\".\"testschema\"");
+      statement.execute(
+          "create or replace table \"dbwith\"\"quotes\".\"testschema\".\"testtable\"  (col1 string, col2 string)");
+      DatabaseMetaData metaData = con.getMetaData();
+      ResultSet rs = metaData.getColumns("dbwith\"quotes", "testschema", null, null);
+      assertEquals(2, getSizeOfResultSet(rs));
+      rs.close();
+      statement.close();
+    }
+  }
+
   /**
    * This tests that wildcards can be used for the schema name for getProcedureColumns().
    * Previously, only empty resultsets were returned.
