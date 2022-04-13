@@ -12,7 +12,7 @@ public class SFLoggerUtil {
     String logger = systemGetProperty("net.snowflake.jdbc.loggerImpl");
     SFLoggerFactory.LoggerImpl loggerImplementation = SFLoggerFactory.LoggerImpl.fromString(logger);
     if (loggerImplementation == null) {
-      loggerImplementation = SFLoggerFactory.LoggerImpl.JDK14LOGGER;
+      loggerImplementation = SFLoggerFactory.LoggerImpl.SLF4JLOGGER;
     }
 
     System.setProperty(

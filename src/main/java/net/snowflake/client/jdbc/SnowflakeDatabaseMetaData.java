@@ -2788,15 +2788,13 @@ public class SnowflakeDatabaseMetaData implements DatabaseMetaData {
   @Override
   public int getSQLStateType() throws SQLException {
     logger.debug("public int getSQLStateType()");
-
-    throw new SnowflakeLoggedFeatureNotSupportedException(session);
+    return sqlStateSQL;
   }
 
   @Override
   public boolean locatorsUpdateCopy() throws SQLException {
     logger.debug("public boolean locatorsUpdateCopy()");
-
-    throw new SnowflakeLoggedFeatureNotSupportedException(session);
+    return true;
   }
 
   @Override
